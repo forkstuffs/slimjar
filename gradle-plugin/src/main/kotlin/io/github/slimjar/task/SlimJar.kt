@@ -76,9 +76,6 @@ private val scope = CoroutineScope(IO)
 @CacheableTask
 abstract class SlimJar @Inject constructor(private val config: Configuration) : DefaultTask() {
 
-    // Find by name since it won't always be present
-    private val apiConfig = project.configurations.findByName(SLIM_API_CONFIGURATION_NAME)
-
     private val relocations = mutableSetOf<RelocationRule>()
     private val mirrors = mutableSetOf<Mirror>()
     private val isolatedProjects = mutableSetOf<Project>()
@@ -121,9 +118,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         if (proj.slimInjectToIsolated) {
             proj.pluginManager.apply(ShadowPlugin::class.java)
             proj.pluginManager.apply(SlimJarPlugin::class.java)
-            proj.getTasksByName("slimJar", true).firstOrNull()?.let {
-                it.setProperty("shade", false)
-            }
+            proj.getTasksByName("slimJar", true).firstOrNull()?.setProperty("shade", false)
         }
 
         val shadowTask = proj.getTasksByName("shadowJar", true).firstOrNull()
@@ -145,7 +140,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
                     it.toSlimDependency()
                 }.toMutableSet()
         // If api config is present map dependencies from it as well
-        apiConfig?.let { config ->
+        project.configurations.findByName(SLIM_API_CONFIGURATION_NAME)?.let { config->
             dependencies.addAll(
                 RenderableModuleResult(config.incoming.resolutionResult.root)
                     .children

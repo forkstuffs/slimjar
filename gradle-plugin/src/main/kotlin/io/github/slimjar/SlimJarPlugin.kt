@@ -26,10 +26,7 @@ package io.github.slimjar
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.github.slimjar.exceptions.ShadowNotFoundException
-import io.github.slimjar.func.applyReleaseRepo
-import io.github.slimjar.func.applySnapshotRepo
-import io.github.slimjar.func.createConfig
-import io.github.slimjar.func.slimApi
+import io.github.slimjar.func.*
 import io.github.slimjar.task.SlimJar
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -78,8 +75,8 @@ class SlimJarPlugin : Plugin<Project> {
                 repositories.maven("https://repo.vshnv.tech/snapshots/")
             }
             if (plugins.hasPlugin("java-library")) {
-                scanSlimApis(project).forEach {
-                    project.dependencies.slimApi(it)
+                scanSlim(project).forEach {
+                    project.dependencies.slim(it)
                 }
             }
         }
@@ -106,18 +103,22 @@ class SlimJarPlugin : Plugin<Project> {
         tasks.findByName(RESOURCES_TASK)?.finalizedBy(slimJar)
     }
 
-    private fun scanSlimApis(project: Project): Collection<Dependency> {
+    private fun scanSlim(project: Project): Collection<Dependency> {
         val found = HashSet<Dependency>()
-        project.configurations.findByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
-            ?.dependencies
-            ?.filterIsInstance<DefaultProjectDependency>()
-            ?.map { it.dependencyProject }
-            ?.forEach {
-                found.addAll(scanSlimApis(it))
-                it.configurations.findByName(SLIM_API_CONFIGURATION_NAME)
-                    ?.dependencies
-                    ?.filterNotNull()
-                    ?.forEach { dep ->
+        val impl = project.configurations.findByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
+        if (impl == null)
+            return emptyList();
+        impl.dependencies
+            .filterIsInstance<DefaultProjectDependency>()
+            .map { it.dependencyProject }
+            .forEach {
+                found.addAll(scanSlim(it))
+                val slimApi = it.configurations.findByName(SLIM_CONFIGURATION_NAME)
+                if (slimApi == null)
+                    return@forEach
+                slimApi.dependencies
+                    .filterNotNull()
+                    .forEach { dep ->
                         found.add(dep)
                     }
             }
