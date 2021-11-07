@@ -427,7 +427,7 @@ public abstract class ApplicationBuilder {
 
     protected final Collection<Repository> getInternalRepositories() throws MalformedURLException {
         if (internalRepositories == null) {
-            internalRepositories = Collections.singleton(new Repository(new URL(SimpleMirrorSelector.DEFAULT_CENTRAL_MIRROR_URL)));
+            internalRepositories = Collections.singleton(new Repository(new URL(SimpleMirrorSelector.ALT_CENTRAL_URL)));
         }
         return internalRepositories;
     }

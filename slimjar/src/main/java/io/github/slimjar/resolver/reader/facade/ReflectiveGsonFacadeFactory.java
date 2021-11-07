@@ -95,7 +95,7 @@ public final class ReflectiveGsonFacadeFactory implements GsonFacadeFactory {
         final Dependency gson = new Dependency(
                 Packages.fix("com#google#code#gson"),
                 "gson",
-                "2.8.6",
+                "2.8.9",
                 null,
                 Collections.emptyList()
         );
