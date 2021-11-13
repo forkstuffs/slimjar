@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 public final class ReflectiveGsonFacadeFactory implements GsonFacadeFactory {
     private static final String GSON_PACKAGE = "com#google#gson#Gson";
@@ -97,7 +98,7 @@ public final class ReflectiveGsonFacadeFactory implements GsonFacadeFactory {
                 "gson",
                 "2.8.9",
                 null,
-                Collections.emptyList()
+          new HashSet<>()
         );
         return new DependencyData(
                 Collections.emptySet(),

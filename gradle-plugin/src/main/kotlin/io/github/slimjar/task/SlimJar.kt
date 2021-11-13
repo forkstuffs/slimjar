@@ -77,6 +77,7 @@ private val scope = CoroutineScope(IO)
 abstract class SlimJar @Inject constructor(private val config: Configuration) : DefaultTask() {
 
     private val relocations = mutableSetOf<RelocationRule>()
+    private val excludes = mutableSetOf<String>()
     private val mirrors = mutableSetOf<Mirror>()
     private val isolatedProjects = mutableSetOf<Project>()
 
@@ -94,6 +95,11 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
     init {
         group = "slimJar"
         inputs.files(config)
+    }
+
+    open fun exclude(groupIdArtifactId: String): SlimJar {
+        excludes.add(groupIdArtifactId)
+        return this
     }
 
     open fun relocate(original: String, relocated: String): SlimJar {
@@ -138,7 +144,8 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
                 .children
                 .mapNotNull {
                     it.toSlimDependency()
-                }.toMutableSet()
+                }
+                .toMutableSet()
         // If api config is present map dependencies from it as well
         project.configurations.findByName(SLIM_API_CONFIGURATION_NAME)?.let { config->
             dependencies.addAll(
@@ -162,6 +169,8 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
         val file = File(outputDirectory, "slimjar.json")
 
+        handleExcludes(dependencies)
+
         FileWriter(file).use {
             gson.toJson(DependencyData(mirrors, repositories, dependencies, relocations), it)
         }
@@ -169,6 +178,19 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         // Copies to shadow's main folder
         if (shadowWriteFolder.exists().not()) shadowWriteFolder.mkdirs()
         file.copyTo(File(shadowWriteFolder, file.name), true)
+    }
+
+    private fun handleExcludes(dependencies: MutableSet<Dependency>) {
+        val iterator = dependencies.iterator()
+        while (iterator.hasNext()) {
+            val dependency = iterator.next();
+            val formatted = dependency.groupId + ":" + dependency.artifactId;
+            if (excludes.contains(formatted)) {
+                iterator.remove()
+                continue
+            }
+            handleExcludes(dependency.transitive)
+        }
     }
 
     // Finds jars to be isolated and adds them to final jar

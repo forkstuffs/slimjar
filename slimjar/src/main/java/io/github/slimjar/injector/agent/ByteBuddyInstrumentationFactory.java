@@ -51,6 +51,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.UUID;
 
 public final class ByteBuddyInstrumentationFactory implements InstrumentationFactory {
@@ -125,7 +126,7 @@ public final class ByteBuddyInstrumentationFactory implements InstrumentationFac
                 "byte-buddy-agent",
                 "1.11.0",
                 null,
-                Collections.emptyList()
+                new HashSet<>()
         );
         final Repository centralRepository = new Repository(new URL(SimpleMirrorSelector.CENTRAL_URL));
         return new DependencyData(

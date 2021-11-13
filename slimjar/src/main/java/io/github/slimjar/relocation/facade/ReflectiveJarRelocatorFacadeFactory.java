@@ -45,10 +45,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.*;
 
 public final class ReflectiveJarRelocatorFacadeFactory implements JarRelocatorFacadeFactory {
     private static final String JAR_RELOCATOR_PACKAGE = "me#lucko#jarrelocator#JarRelocator";
@@ -89,21 +86,21 @@ public final class ReflectiveJarRelocatorFacadeFactory implements JarRelocatorFa
                 "asm",
                 "9.1",
                 null,
-                Collections.emptyList()
+          new HashSet<>()
         );
         final Dependency asmCommons = new Dependency(
                 Packages.fix("org#ow2#asm"),
                 "asm-commons",
                 "9.1",
                 null,
-                Collections.emptyList()
+          new HashSet<>()
         );
         final Dependency jarRelocator = new Dependency(
                 Packages.fix("me#lucko"),
                 "jar-relocator",
                 "1.4",
                 null,
-                Arrays.asList(asm, asmCommons)
+                new HashSet<>(Arrays.asList(asm, asmCommons))
         );
         return new DependencyData(
                 Collections.emptySet(),

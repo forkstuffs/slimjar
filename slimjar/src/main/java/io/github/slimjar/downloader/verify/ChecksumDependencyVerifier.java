@@ -63,7 +63,7 @@ public final class ChecksumDependencyVerifier implements DependencyVerifier {
     @Override
     public boolean verify(final File file, final Dependency dependency) throws IOException {
         if (!file.exists()) return false;
-        LOGGER.log("Verifying checksum for {0}", dependency.getArtifactId());
+        LOGGER.debug("Verifying checksum for {0}", dependency.getArtifactId());
         final File checksumFile = outputWriterFactory.getStrategy().selectFileFor(dependency);
         checksumFile.getParentFile().mkdirs();
         if (!checksumFile.exists() && !prepareChecksumFile(checksumFile, dependency)) {
@@ -79,7 +79,7 @@ public final class ChecksumDependencyVerifier implements DependencyVerifier {
         LOGGER.debug("{0} -> Actual checksum: {1};", dependency.getArtifactId(), actualChecksum);
         LOGGER.debug("{0} -> Expected checksum: {1};", dependency.getArtifactId(), expectedChecksum);
         final boolean match = Objects.equals(actualChecksum, expectedChecksum);
-        LOGGER.log("Checksum {0} for {1}", match ? "matched" : "match failed", dependency.getArtifactId());
+        LOGGER.debug("Checksum {0} for {1}", match ? "matched" : "match failed", dependency.getArtifactId());
         return Objects.equals(actualChecksum, expectedChecksum);
     }
 

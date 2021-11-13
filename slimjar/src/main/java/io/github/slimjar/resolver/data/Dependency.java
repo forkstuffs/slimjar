@@ -26,15 +26,16 @@ package io.github.slimjar.resolver.data;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 public final class Dependency {
     private final String groupId;
     private final String artifactId;
     private final String version;
     private final String snapshotId;
-    private final Collection<Dependency> transitive;
+    private final Set<Dependency> transitive;
 
-    public Dependency(String groupId, String artifactId, String version, String snapshotId, Collection<Dependency> transitive) {
+    public Dependency(String groupId, String artifactId, String version, String snapshotId, Set<Dependency> transitive) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
@@ -58,7 +59,7 @@ public final class Dependency {
         return snapshotId;
     }
 
-    public Collection<Dependency> getTransitive() {
+    public Set<Dependency> getTransitive() {
         return transitive;
     }
 
