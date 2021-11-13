@@ -88,7 +88,7 @@ public final class URLDependencyDownloader implements DependencyDownloader {
             checksumFile.delete();
         }
 
-        LOGGER.debug("Downloading {0}...", dependency.getArtifactId());
+        LOGGER.log("Downloading {0}...", dependency.getArtifactId());
 
         final URL url = result.getDependencyURL();
         LOGGER.debug("Connecting to {0}", url);
@@ -102,7 +102,7 @@ public final class URLDependencyDownloader implements DependencyDownloader {
         verifier.verify(downloadResult, dependency);
         LOGGER.debug("Artifact {0} downloaded successfully!", dependency.getArtifactId());
 
-        LOGGER.log("Downloaded {0} successfully!", dependency.getArtifactId());
+        LOGGER.debug("Downloaded {0} successfully!", dependency.getArtifactId());
         return downloadResult;
     }
 }

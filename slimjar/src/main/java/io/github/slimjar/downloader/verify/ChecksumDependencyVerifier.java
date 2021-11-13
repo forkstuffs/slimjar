@@ -97,7 +97,7 @@ public final class ChecksumDependencyVerifier implements DependencyVerifier {
             return false;
         } else {
             final URL checkSumUrl = result.get().getChecksumURL();
-            LOGGER.log("Resolved checksum URL for {0} as {1}", dependency.getArtifactId(), checkSumUrl);
+            LOGGER.debug("Resolved checksum URL for {0} as {1}", dependency.getArtifactId(), checkSumUrl);
             if (checkSumUrl == null) {
                 checksumFile.createNewFile();
                 return true;
@@ -107,7 +107,7 @@ public final class ChecksumDependencyVerifier implements DependencyVerifier {
             final OutputWriter outputWriter = outputWriterFactory.create(dependency);
             outputWriter.writeFrom(inputStream, connection.getContentLength());
             Connections.tryDisconnect(connection);
-            LOGGER.log("Downloaded checksum for {0}", dependency.getArtifactId());
+            LOGGER.debug("Downloaded checksum for {0}", dependency.getArtifactId());
         }
         return true;
     }
