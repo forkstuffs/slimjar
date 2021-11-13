@@ -169,7 +169,9 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
         val file = File(outputDirectory, "slimjar.json")
 
+        println("TEST: " + dependencies.size)
         handleExcludes(dependencies)
+        println("TEST: " + dependencies.size)
 
         FileWriter(file).use {
             gson.toJson(DependencyData(mirrors, repositories, dependencies, relocations), it)
@@ -190,6 +192,18 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
                 continue
             }
             handleExcludes(dependency.transitive)
+        }
+    }
+
+    private fun handleExcludes(dependencies: MutableMap<String, ResolutionResult>) {
+        val iterator = dependencies.iterator()
+        while (iterator.hasNext()) {
+            val dependency = iterator.next().key
+            excludes.forEach { exclude ->
+                if (dependency.contains(exclude)) {
+                    iterator.remove()
+                }
+            }
         }
     }
 
@@ -233,8 +247,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
             .mapNotNull { it.toSlimDependency() }
             .toMutableSet()
             .flatten()
-
-        handleExcludes(dependencies)
 
         val repositories = repositories.filterIsInstance<MavenArtifactRepository>()
             .filterNot { it.url.toString().startsWith("file") }
@@ -285,6 +297,10 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         }
 
         if (outputDirectory.exists().not()) outputDirectory.mkdirs()
+
+        println("TEST-2: " + dependencies.size)
+        handleExcludes(result)
+        println("TEST-2: " + dependencies.size)
 
         FileWriter(file).use {
             gson.toJson(result, it)
