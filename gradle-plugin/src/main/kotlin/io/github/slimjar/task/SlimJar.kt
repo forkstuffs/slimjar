@@ -78,6 +78,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
     private val relocations = mutableSetOf<RelocationRule>()
     private val excludes = mutableSetOf<String>()
+    private val excludedRepositories = mutableSetOf<String>()
     private val mirrors = mutableSetOf<Mirror>()
     private val isolatedProjects = mutableSetOf<Project>()
 
@@ -99,6 +100,11 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
     open fun exclude(groupIdArtifactId: String): SlimJar {
         excludes.add(groupIdArtifactId)
+        return this
+    }
+
+    open fun excludeRepository(repositoryUrl: String): SlimJar {
+        excludedRepositories.add(repositoryUrl)
         return this
     }
 
@@ -161,6 +167,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
             .filterNot { it.url.toString().startsWith("file") }
             .toSet()
             .map { Repository(it.url.toURL()) }
+            .filterNot { excludedRepositories.any { repository -> it.url.toString().contains(repository) } }
 
         // Note: Commented out to allow creation of empty dependency file
         // if (dependencies.isEmpty() || repositories.isEmpty()) return
@@ -252,6 +259,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
             .filterNot { it.url.toString().startsWith("file") }
             .toSet()
             .map { Repository(it.url.toURL()) }
+            .filterNot { excludedRepositories.any { repository -> it.url.toString().contains(repository) } }
 
         val releaseStrategy: PathResolutionStrategy = MavenPathResolutionStrategy()
         val snapshotStrategy: PathResolutionStrategy = MavenSnapshotPathResolutionStrategy()
