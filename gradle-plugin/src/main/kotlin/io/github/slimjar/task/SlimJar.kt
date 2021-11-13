@@ -169,9 +169,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
         val file = File(outputDirectory, "slimjar.json")
 
-        println("TEST: " + dependencies.size)
         handleExcludes(dependencies)
-        println("TEST: " + dependencies.size)
 
         FileWriter(file).use {
             gson.toJson(DependencyData(mirrors, repositories, dependencies, relocations), it)
@@ -300,9 +298,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
         if (outputDirectory.exists().not()) outputDirectory.mkdirs()
 
-        println("TEST-2: " + result.size)
         result = handleExcludes(result)
-        println("TEST-2: " + result.size)
 
         FileWriter(file).use {
             gson.toJson(result, it)
