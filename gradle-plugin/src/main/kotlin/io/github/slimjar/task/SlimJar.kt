@@ -195,16 +195,18 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         }
     }
 
-    private fun handleExcludes(dependencies: MutableMap<String, ResolutionResult>) {
+    private fun handleExcludes(dependencies: MutableMap<String, ResolutionResult>): MutableMap<String, ResolutionResult> {
+        val result = HashMap<String, ResolutionResult>();
         val iterator = dependencies.iterator()
         while (iterator.hasNext()) {
-            val dependency = iterator.next().key
-            excludes.forEach { exclude ->
-                if (dependency.contains(exclude)) {
-                    iterator.remove()
-                }
+            val next = iterator.next();
+            val dependency = next.key
+            if (excludes.any { exclude -> dependency.contains(exclude) }) {
+                continue
             }
+            result[next.key] = next.value
         }
+        return result
     }
 
     // Finds jars to be isolated and adds them to final jar
@@ -274,7 +276,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
             enquirerFactory,
             mapOf()
         )
-        val result: MutableMap<String, ResolutionResult> = runBlocking(IO) {
+        var result: MutableMap<String, ResolutionResult> = runBlocking(IO) {
             dependencies
                 // Filter to enforce incremental resolution
                 .filter {
@@ -298,9 +300,9 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
         if (outputDirectory.exists().not()) outputDirectory.mkdirs()
 
-        println("TEST-2: " + dependencies.size)
-        handleExcludes(result)
-        println("TEST-2: " + dependencies.size)
+        println("TEST-2: " + result.size)
+        result = handleExcludes(result)
+        println("TEST-2: " + result.size)
 
         FileWriter(file).use {
             gson.toJson(result, it)
