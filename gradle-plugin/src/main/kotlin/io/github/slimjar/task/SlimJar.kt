@@ -230,9 +230,11 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         }
         val dependencies = RenderableModuleResult(config.incoming.resolutionResult.root)
             .children
-            .mapNotNull {
-                it.toSlimDependency()
-            }.toMutableSet().flatten()
+            .mapNotNull { it.toSlimDependency() }
+            .toMutableSet()
+            .flatten()
+
+        handleExcludes(dependencies)
 
         val repositories = repositories.filterIsInstance<MavenArtifactRepository>()
             .filterNot { it.url.toString().startsWith("file") }
