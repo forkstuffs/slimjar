@@ -79,7 +79,7 @@ public final class CachingDependencyResolver implements DependencyResolver {
                 .filter(Objects::nonNull)
                 .findFirst();
         final String resolvedResult = result.map(ResolutionResult::getDependencyURL).map(Objects::toString).orElse(FAILED_RESOLUTION_MESSAGE);
-        LOGGER.log("Resolved {0} @ {1}", dependency.getArtifactId(), resolvedResult);
+        LOGGER.debug("Resolved {0} @ {1}", dependency.getArtifactId(), resolvedResult);
         return result.orElse(null);
     }
 }
