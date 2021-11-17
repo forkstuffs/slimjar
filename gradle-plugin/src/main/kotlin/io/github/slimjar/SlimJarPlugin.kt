@@ -106,17 +106,19 @@ class SlimJarPlugin : Plugin<Project> {
     private fun scanSlim(project: Project): Collection<Dependency> {
         val found = HashSet<Dependency>()
         val impl = project.configurations.findByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
-        if (impl == null)
-            return emptyList();
+        if (impl == null) {
+            return emptyList()
+        }
         impl.dependencies
             .filterIsInstance<DefaultProjectDependency>()
             .map { it.dependencyProject }
             .forEach {
                 found.addAll(scanSlim(it))
-                val slimApi = it.configurations.findByName(SLIM_CONFIGURATION_NAME)
-                if (slimApi == null)
+                val slim = it.configurations.findByName(SLIM_CONFIGURATION_NAME)
+                if (slim == null) {
                     return@forEach
-                slimApi.dependencies
+                }
+                slim.dependencies
                     .filterNotNull()
                     .forEach { dep ->
                         found.add(dep)
