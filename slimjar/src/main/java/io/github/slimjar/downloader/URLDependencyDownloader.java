@@ -88,7 +88,7 @@ public final class URLDependencyDownloader implements DependencyDownloader {
             checksumFile.delete();
         }
 
-        LOGGER.log("Downloading {0}...", dependency.getArtifactId());
+        LOGGER.log("Downloading {0}:{1}:{2}...", dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
 
         final URL url = result.getDependencyURL();
         LOGGER.debug("Connecting to {0}", url);
