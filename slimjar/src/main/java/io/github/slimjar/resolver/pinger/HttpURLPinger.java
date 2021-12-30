@@ -51,6 +51,7 @@ public final class HttpURLPinger implements URLPinger {
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(1000 * 5);
             connection.addRequestProperty("User-Agent", SLIMJAR_USER_AGENT);
             connection.connect();
             final boolean result = connection.getResponseCode() == HttpURLConnection.HTTP_OK;
