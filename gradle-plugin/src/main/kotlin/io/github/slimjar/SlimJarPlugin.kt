@@ -24,7 +24,6 @@
 
 package io.github.slimjar
 
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import io.github.slimjar.exceptions.ShadowNotFoundException
 import io.github.slimjar.func.*
 import io.github.slimjar.task.SlimJar
@@ -40,17 +39,12 @@ const val SLIM_CONFIGURATION_NAME = "slim"
 const val SLIM_API_CONFIGURATION_NAME = "slimApi"
 const val SLIM_JAR_TASK_NAME = "slimJar"
 private const val RESOURCES_TASK = "processResources"
-private const val SHADOW_ID = "com.github.johnrengelman.shadow"
 
 class SlimJarPlugin : Plugin<Project> {
 
     override fun apply(project: Project): Unit = with(project) {
         // Applies Java if not present, since it's required for the compileOnly configuration
         plugins.apply(JavaPlugin::class.java)
-
-        if (!plugins.hasPlugin(SHADOW_ID)) {
-            throw ShadowNotFoundException("SlimJar depends on the Shadow plugin, please apply the plugin. For more information visit: https://imperceptiblethoughts.com/shadow/")
-        }
 
         val slimConfig = createConfig(
             SLIM_CONFIGURATION_NAME,
@@ -84,17 +78,6 @@ class SlimJarPlugin : Plugin<Project> {
             "slimjar",
             asGroovyClosure("+") { version -> slimJarLib(version) }
         )
-        // Hooks into shadow to inject relocations
-        val shadowTask = tasks.withType(ShadowJar::class.java).firstOrNull() ?: return
-        shadowTask.doFirst {
-            slimJar.relocations().forEach { rule ->
-                shadowTask.relocate(rule.originalPackagePattern, rule.relocatedPackagePattern) {
-                    rule.inclusions.forEach { include(it) }
-                    rule.exclusions.forEach { exclude(it) }
-                }
-            }
-        }
-
         // Runs the task once resources are being processed to save the json file
         tasks.findByName(RESOURCES_TASK)?.finalizedBy(slimJar)
     }

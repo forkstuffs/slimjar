@@ -24,7 +24,6 @@
 
 package io.github.slimjar.task
 
-import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.github.slimjar.SLIM_API_CONFIGURATION_NAME
@@ -128,7 +127,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         isolatedProjects.add(proj)
 
         if (proj.slimInjectToIsolated) {
-            proj.pluginManager.apply(ShadowPlugin::class.java)
             proj.pluginManager.apply(SlimJarPlugin::class.java)
             proj.getTasksByName("slimJar", true).firstOrNull()?.setProperty("shade", false)
         }

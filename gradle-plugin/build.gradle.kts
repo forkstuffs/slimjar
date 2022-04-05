@@ -25,16 +25,13 @@ configurations["testImplementation"].extendsFrom(shadowImplementation)
 
 dependencies {
     shadowImplementation(kotlin("stdlib", "1.4.20"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     shadowImplementation(project(":slimjar"))
-    shadowImplementation("com.google.code.gson:gson:2.8.6")
+    shadowImplementation("com.google.code.gson:gson:2.9.0")
 
-    compileOnly("com.github.jengelman.gradle.plugins:shadow:6.1.0")
-
-    testImplementation("com.github.jengelman.gradle.plugins:shadow:6.1.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.7.0")
-    testImplementation("org.assertj:assertj-core:3.19.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
+    testImplementation("org.assertj:assertj-core:3.22.0")
 }
 
 val shadowJarTask = tasks.named("shadowJar", ShadowJar::class.java)
