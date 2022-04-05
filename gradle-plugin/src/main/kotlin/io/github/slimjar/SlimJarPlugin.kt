@@ -32,7 +32,6 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.extra
-import org.gradle.kotlin.dsl.maven
 
 const val SLIM_CONFIGURATION_NAME = "slim"
 const val SLIM_API_CONFIGURATION_NAME = "slimApi"
@@ -61,12 +60,6 @@ class SlimJarPlugin : Plugin<Project> {
         val slimJar = tasks.create(SLIM_JAR_TASK_NAME, SlimJar::class.java, slimConfig)
         // Auto adds the slimJar lib dependency
         afterEvaluate {
-            if (applyReleaseRepo) {
-                repositories.maven("https://repo.vshnv.tech/")
-            }
-            if (applySnapshotRepo) {
-                repositories.maven("https://repo.vshnv.tech/snapshots/")
-            }
             if (plugins.hasPlugin("java-library")) {
                 scanSlim(project).forEach {
                     project.dependencies.slim(it)

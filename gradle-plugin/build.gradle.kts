@@ -5,6 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     `java-gradle-plugin`
     groovy
+    `kotlin-dsl`
     kotlin("jvm") version "1.6.20"
     id("com.gradle.plugin-publish") version "1.0.0-rc-1"
     id("com.github.johnrengelman.shadow") version "7.1.2"

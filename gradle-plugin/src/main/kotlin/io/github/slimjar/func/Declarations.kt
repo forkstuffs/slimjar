@@ -40,19 +40,6 @@ val Project.performCompileTimeResolution: Boolean
     get() = findProperty("slimjar.default.resolution.compile_time")?.toString()?.toBoolean() ?: true
 
 /**
- * Checks in the gradle.properties if should or not add the slimJar repo by default
- */
-val Project.applyReleaseRepo: Boolean
-    get() = findProperty("slimjar.default.repo.releases.apply")?.toString()?.toBoolean() ?: true
-
-
-/**
- * Checks in the gradle.properties if should or not add the slimJar snapshot repo by default
- */
-val Project.applySnapshotRepo: Boolean
-    get() = findProperty("slimjar.default.repo.snapshot.apply")?.toString()?.toBoolean() ?: false
-
-/**
  * Checks in the gradle.properties if should or not add the slimJar plugin to isolated projects by default
  */
 val Project.slimInjectToIsolated: Boolean
