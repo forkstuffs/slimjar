@@ -4,11 +4,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-gradle-plugin`
-    `kotlin-dsl`
-    `groovy`
-    kotlin("jvm") version "1.4.20"
-    id("com.gradle.plugin-publish") version "0.12.0"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
+    groovy
+    kotlin("jvm") version "1.6.20"
+    id("com.gradle.plugin-publish") version "1.0.0-rc-1"
+    id("com.github.johnrengelman.shadow") version "7.1.2"
     `maven-publish`
 }
 
@@ -24,7 +23,7 @@ configurations["compileOnly"].extendsFrom(shadowImplementation)
 configurations["testImplementation"].extendsFrom(shadowImplementation)
 
 dependencies {
-    shadowImplementation(kotlin("stdlib", "1.4.20"))
+    shadowImplementation(kotlin("stdlib", "1.6.20"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     shadowImplementation(project(":slimjar"))
     shadowImplementation("com.google.code.gson:gson:2.9.0")
@@ -99,7 +98,7 @@ tasks.named("check") {
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
-            jvmTarget = "1.8"
+            jvmTarget = "17"
             freeCompilerArgs = freeCompilerArgs + "-Xopt-in=kotlin.RequiresOptIn"
         }
     }
@@ -150,5 +149,5 @@ pluginBundle {
 }
 val compileKotlin: KotlinCompile by tasks
 compileKotlin.kotlinOptions {
-    languageVersion = "1.4"
+    languageVersion = "1.6"
 }
