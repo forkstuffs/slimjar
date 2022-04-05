@@ -24,7 +24,6 @@
 
 package io.github.slimjar
 
-import io.github.slimjar.exceptions.ShadowNotFoundException
 import io.github.slimjar.func.*
 import io.github.slimjar.task.SlimJar
 import org.gradle.api.Plugin
