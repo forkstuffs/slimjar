@@ -96,15 +96,14 @@ public final class ReflectiveGsonFacadeFactory implements GsonFacadeFactory {
         final Dependency gson = new Dependency(
                 Packages.fix("com#google#code#gson"),
                 "gson",
-                "2.8.9",
+                "2.9.0",
                 null,
           new HashSet<>()
         );
         return new DependencyData(
                 Collections.emptySet(),
                 repositories,
-                Collections.singleton(gson),
-                Collections.emptyList()
+                Collections.singleton(gson)
         );
     }
 }

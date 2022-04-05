@@ -24,8 +24,6 @@
 
 package io.github.slimjar.resolver.data;
 
-import io.github.slimjar.relocation.RelocationRule;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -35,18 +33,15 @@ public final class DependencyData {
     private final Collection<Mirror> mirrors;
     private final Collection<Repository> repositories;
     private final Collection<Dependency> dependencies;
-    private final Collection<RelocationRule> relocations;
 
     public DependencyData(
             final Collection<Mirror> mirrors,
             final Collection<Repository> repositories,
-            final Collection<Dependency> dependencies,
-            final Collection<RelocationRule> relocations
+            final Collection<Dependency> dependencies
     ) {
         this.mirrors = Collections.unmodifiableCollection(mirrors);
         this.repositories = Collections.unmodifiableCollection(repositories);
         this.dependencies = Collections.unmodifiableCollection(dependencies);
-        this.relocations = Collections.unmodifiableCollection(relocations);
     }
 
     public Collection<Repository> getRepositories() {
@@ -55,10 +50,6 @@ public final class DependencyData {
 
     public Collection<Dependency> getDependencies() {
         return dependencies;
-    }
-
-    public Collection<RelocationRule> getRelocations() {
-        return relocations;
     }
 
     public Collection<Mirror> getMirrors() {
@@ -70,7 +61,7 @@ public final class DependencyData {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final DependencyData that = (DependencyData) o;
-        return isCollectionEqual(repositories, that.repositories) && isCollectionEqual(dependencies, that.dependencies) && isCollectionEqual(relocations, that.relocations);
+        return isCollectionEqual(repositories, that.repositories) && isCollectionEqual(dependencies, that.dependencies);
     }
 
     private <T> boolean isCollectionEqual(Collection<T> a, Collection<T> b) {
@@ -79,7 +70,7 @@ public final class DependencyData {
 
     @Override
     public int hashCode() {
-        return Objects.hash(repositories, dependencies, relocations);
+        return Objects.hash(repositories, dependencies);
     }
 
     @Override
@@ -88,7 +79,6 @@ public final class DependencyData {
                 "mirrors=" + mirrors +
                 ", repositories=" + repositories +
                 ", dependencies=" + dependencies +
-                ", relocations=" + relocations +
                 '}';
     }
 }

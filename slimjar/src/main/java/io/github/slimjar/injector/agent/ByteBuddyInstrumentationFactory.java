@@ -132,8 +132,7 @@ public final class ByteBuddyInstrumentationFactory implements InstrumentationFac
         return new DependencyData(
                 Collections.emptySet(),
                 Collections.singleton(centralRepository),
-                Collections.singleton(byteBuddy),
-                Collections.emptyList()
+                Collections.singleton(byteBuddy)
         );
     }
 

@@ -30,7 +30,6 @@ import io.github.slimjar.SLIM_API_CONFIGURATION_NAME
 import io.github.slimjar.SlimJarPlugin
 import io.github.slimjar.func.performCompileTimeResolution
 import io.github.slimjar.func.slimInjectToIsolated
-import io.github.slimjar.relocation.RelocationRule
 import io.github.slimjar.resolver.CachingDependencyResolver
 import io.github.slimjar.resolver.ResolutionResult
 import io.github.slimjar.resolver.data.Dependency
@@ -51,7 +50,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -74,22 +72,17 @@ private val scope = CoroutineScope(IO)
 @CacheableTask
 abstract class SlimJar @Inject constructor(private val config: Configuration) : DefaultTask() {
 
-    private val relocations = mutableSetOf<RelocationRule>()
     private val excludes = mutableSetOf<String>()
     private val excludedRepositories = mutableSetOf<String>()
     private val mirrors = mutableSetOf<Mirror>()
     private val isolatedProjects = mutableSetOf<Project>()
 
-    private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val gson = GsonBuilder().create()
     private val shadowWriteFolder = File("${project.buildDir}/resources/main/")
-
-    @Input
-    var shade = true
 
     val outputDirectory: File = File("${project.buildDir}/resources/slimjar/")
         @OutputDirectory
         get
-
 
     init {
         group = "slimJar"
@@ -119,7 +112,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
         if (proj.slimInjectToIsolated) {
             proj.pluginManager.apply(SlimJarPlugin::class.java)
-            proj.getTasksByName("slimJar", true).firstOrNull()?.setProperty("shade", false)
         }
 
         val shadowTask = proj.getTasksByName("shadowJar", true).firstOrNull()
@@ -168,7 +160,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         handleExcludes(dependencies)
 
         FileWriter(file).use {
-            gson.toJson(DependencyData(mirrors, repositories, dependencies, relocations), it)
+            gson.toJson(DependencyData(mirrors, repositories, dependencies), it)
         }
 
         // Copies to shadow's main folder
@@ -304,14 +296,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         // Copies to shadow's main folder
         if (shadowWriteFolder.exists().not()) shadowWriteFolder.mkdirs()
         file.copyTo(File(shadowWriteFolder, file.name), true)
-    }
-
-
-    /**
-     * Internal getter required because Gradle will think an internal property is an action
-     */
-    internal fun relocations(): Set<RelocationRule> {
-        return relocations
     }
 
     /**

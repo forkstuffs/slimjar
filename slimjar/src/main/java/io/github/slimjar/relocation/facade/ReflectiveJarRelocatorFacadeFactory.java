@@ -105,8 +105,7 @@ public final class ReflectiveJarRelocatorFacadeFactory implements JarRelocatorFa
         return new DependencyData(
                 Collections.emptySet(),
                 repositories,
-                Collections.singleton(jarRelocator),
-                Collections.emptyList()
+                Collections.singleton(jarRelocator)
         );
     }
 

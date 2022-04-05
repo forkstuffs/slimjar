@@ -49,6 +49,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 public final class InjectionHelperFactory {
@@ -75,7 +76,7 @@ public final class InjectionHelperFactory {
     public InjectionHelper create(final DependencyData data, final Map<String, ResolutionResult> preResolvedResults) throws IOException, NoSuchAlgorithmException, URISyntaxException {
         final Collection<Repository> repositories = mirrorSelector
                 .select(data.getRepositories(), data.getMirrors());
-        final Relocator relocator = relocatorFactory.create(data.getRelocations());
+        final Relocator relocator = relocatorFactory.create(Collections.emptySet());
         final RelocationHelper relocationHelper = relocationHelperFactory.create(relocator);
         final FilePathStrategy filePathStrategy = FilePathStrategy.createDefault(downloadDirectoryPath.toFile());
         final OutputWriterFactory outputWriterFactory = new DependencyOutputWriterFactory(filePathStrategy);

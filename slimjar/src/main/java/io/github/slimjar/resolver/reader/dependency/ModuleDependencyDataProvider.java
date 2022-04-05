@@ -59,7 +59,6 @@ public final class ModuleDependencyDataProvider implements DependencyDataProvide
             return new DependencyData(
                     Collections.emptySet(),
                     Collections.emptySet(),
-                    Collections.emptySet(),
                     Collections.emptySet()
             );
         }
