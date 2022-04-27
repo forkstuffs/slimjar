@@ -90,8 +90,10 @@ public final class CachingDependencyResolver implements DependencyResolver {
               .findFirst();
             if (result.isPresent()) {
                 final ResolutionResult found = result.get();
-                LOGGER.debug("Resolved {0} @ {1}",
-                  dependency.getArtifactId(), found.getDependencyURL().toString());
+                final String foundUrl = Optional.ofNullable(found.getDependencyURL())
+                  .map(Objects::toString)
+                  .orElse(FAILED_RESOLUTION_MESSAGE);
+                LOGGER.debug("Resolved {0} @ {1}", dependency.getArtifactId(), foundUrl);
                 return found;
             }
         }
