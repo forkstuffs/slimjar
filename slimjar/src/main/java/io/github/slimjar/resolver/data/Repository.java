@@ -30,33 +30,47 @@ import java.util.Objects;
 public final class Repository {
 
     private final URL url;
+    private final String name;
 
-    public Repository(URL url) {
+    public Repository(URL url, String name) {
         this.url = url;
+        this.name = name;
     }
 
-    public URL getUrl() {
-        return url;
+    public Repository(URL url) {
+        this(url, "maven");
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         Repository that = (Repository) o;
-        return url.equals(that.url);
+
+        return Objects.equals(url, that.url) && Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(url);
+        int result = url != null ? url.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "Repository{" +
-                ", url='" + url + '\'' +
-                '}';
+          "url=" + url +
+          ", name='" + name + '\'' +
+          '}';
     }
 
+    public URL getUrl() {
+        return url;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

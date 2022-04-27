@@ -44,6 +44,11 @@ public final class PingingRepositoryEnquirer implements RepositoryEnquirer {
     private final PathResolutionStrategy pomURLCreationStrategy;
     private final URLPinger urlPinger;
 
+    @Override
+    public Repository repository() {
+        return this.repository;
+    }
+
     public PingingRepositoryEnquirer(final Repository repository, final PathResolutionStrategy urlCreationStrategy, final PathResolutionStrategy checksumURLCreationStrategy, final PathResolutionStrategy pomURLCreationStrategy, final URLPinger urlPinger) {
         this.repository = repository;
         this.dependencyURLCreationStrategy = urlCreationStrategy;

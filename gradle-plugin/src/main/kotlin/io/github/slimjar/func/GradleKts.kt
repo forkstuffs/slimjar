@@ -32,6 +32,8 @@ import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.internal.Cast.uncheckedCast
 
+val predefinedDependencies = mutableMapOf<Dependency, List<String>>()
+
 /**
  * Adds `slim` configuration for Kotlin dsl with options
  */
@@ -55,7 +57,16 @@ fun DependencyHandler.slimApi(
 /**
  * Alternative for adding `slim` configuration for Kotlin dsl but without options
  */
-fun DependencyHandler.slim(dependencyNotation: Any): Dependency? = add(SLIM_CONFIGURATION_NAME, dependencyNotation)
+fun DependencyHandler.slim(
+    dependencyNotation: Any,
+    predefinedRepositories: List<String> = listOf("maven"),
+): Dependency? {
+    val dependency = add(SLIM_CONFIGURATION_NAME, dependencyNotation)
+    dependency?.let {
+        predefinedDependencies[it] = predefinedRepositories
+    }
+    return dependency
+}
 
 /**
  * Alternative for adding `slimApi` configuration for Kotlin dsl but without options

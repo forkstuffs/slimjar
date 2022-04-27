@@ -53,7 +53,7 @@ public class DependencyResolverTest extends TestCase {
                 return true;
             }
         }, repositories, repositoryEnquirerFactory, Collections.emptyMap());
-        final Dependency testDependency = new Dependency("a.b.c", "d", "1.0", null, Collections.emptyList());
+        final Dependency testDependency = new Dependency("a.b.c", "d", "1.0", null, Collections.emptySet());
         final Optional<ResolutionResult> url = dependencyResolver.resolve(testDependency);
         final String groupPath = testDependency.getGroupId().replace('.', '/');
         Assert.assertEquals(url.get().getDependencyURL().toString(), String.format("https://repo.tld/%s/%s/%s/%2$s-%3$s.jar", groupPath, testDependency.getArtifactId(), testDependency.getVersion()));
@@ -73,7 +73,7 @@ public class DependencyResolverTest extends TestCase {
                 return true;
             }
         }, repositories, repositoryEnquirerFactory, Collections.emptyMap());
-        final Dependency testDependency = new Dependency("a.b.c", "d", "1.0", null, Collections.emptyList());
+        final Dependency testDependency = new Dependency("a.b.c", "d", "1.0", null, Collections.emptySet());
         final URL url1 = dependencyResolver.resolve(testDependency).get().getDependencyURL();
         final URL url2 = dependencyResolver.resolve(testDependency).get().getDependencyURL();
 

@@ -45,13 +45,20 @@ public final class CachingDependencyResolver implements DependencyResolver {
     private final Collection<RepositoryEnquirer> repositories;
     private final Map<Dependency, ResolutionResult> cachedResults = new ConcurrentHashMap<>();
     private final Map<String, ResolutionResult> preResolvedResults;
+    private final Map<Dependency, List<String>> predefinedRepositories;
 
-    public CachingDependencyResolver(final URLPinger urlPinger, final Collection<Repository> repositories, final RepositoryEnquirerFactory enquirerFactory, final Map<String, ResolutionResult> preResolvedResults) {
+    public CachingDependencyResolver(final URLPinger urlPinger, final Collection<Repository> repositories, final RepositoryEnquirerFactory enquirerFactory, final Map<String, ResolutionResult> preResolvedResults,
+                                     final Map<Dependency, List<String>> predefinedRepositories) {
         this.urlPinger = urlPinger;
         this.preResolvedResults = new ConcurrentHashMap<>(preResolvedResults);
         this.repositories = repositories.stream()
                 .map(enquirerFactory::create)
                 .collect(Collectors.toSet());
+        this.predefinedRepositories = predefinedRepositories;
+    }
+
+    public CachingDependencyResolver(final URLPinger urlPinger, final Collection<Repository> repositories, final RepositoryEnquirerFactory enquirerFactory, final Map<String, ResolutionResult> preResolvedResults) {
+        this(urlPinger, repositories, enquirerFactory, preResolvedResults, new HashMap<>());
     }
 
     @Override
@@ -73,8 +80,23 @@ public final class CachingDependencyResolver implements DependencyResolver {
             }
         }
 
+        final List<RepositoryEnquirer> enquirers = new ArrayList<>(this.repositories);
+        final List<String> predefinedRepositories = this.predefinedRepositories.get(dependency);
+        if (predefinedRepositories != null) {
+            final Optional<ResolutionResult> result = enquirers.stream()
+              .filter(enquirer -> predefinedRepositories.contains(enquirer.repository().getName()))
+              .map(enquirer -> enquirer.enquire(dependency))
+              .filter(Objects::nonNull)
+              .findFirst();
+            if (result.isPresent()) {
+                final ResolutionResult found = result.get();
+                LOGGER.debug("Resolved {0} @ {1}",
+                  dependency.getArtifactId(), found.getDependencyURL().toString());
+                return found;
+            }
+        }
 
-        final Optional<ResolutionResult> result = repositories.stream().parallel()
+        final Optional<ResolutionResult> result = enquirers.stream().parallel()
                 .map(enquirer -> enquirer.enquire(dependency))
                 .filter(Objects::nonNull)
                 .findFirst();

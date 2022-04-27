@@ -28,8 +28,6 @@ import io.github.slimjar.func.*
 import io.github.slimjar.task.SlimJar
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Dependency
-import org.gradle.api.internal.artifacts.dependencies.DefaultProjectDependency
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.extra
 
@@ -43,6 +41,8 @@ class SlimJarPlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
         // Applies Java if not present, since it's required for the compileOnly configuration
         plugins.apply(JavaPlugin::class.java)
+
+        predefinedDependencies.clear()
 
         val slimConfig = createConfig(
             SLIM_CONFIGURATION_NAME,
@@ -58,44 +58,12 @@ class SlimJarPlugin : Plugin<Project> {
         }
 
         val slimJar = tasks.create(SLIM_JAR_TASK_NAME, SlimJar::class.java, slimConfig)
-        // Auto adds the slimJar lib dependency
-        afterEvaluate {
-            if (plugins.hasPlugin("java-library")) {
-                scanSlim(project).forEach {
-                    project.dependencies.slim(it)
-                }
-            }
-        }
         project.dependencies.extra.set(
             "slimjar",
             asGroovyClosure("+") { version -> slimJarLib(version) }
         )
         // Runs the task once resources are being processed to save the json file
         tasks.findByName(RESOURCES_TASK)?.finalizedBy(slimJar)
-    }
-
-    private fun scanSlim(project: Project): Collection<Dependency> {
-        val found = HashSet<Dependency>()
-        val impl = project.configurations.findByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME)
-        if (impl == null) {
-            return emptyList()
-        }
-        impl.dependencies
-            .filterIsInstance<DefaultProjectDependency>()
-            .map { it.dependencyProject }
-            .forEach {
-                found.addAll(scanSlim(it))
-                val slim = it.configurations.findByName(SLIM_CONFIGURATION_NAME)
-                if (slim == null) {
-                    return@forEach
-                }
-                slim.dependencies
-                    .filterNotNull()
-                    .forEach { dep ->
-                        found.add(dep)
-                    }
-            }
-        return found
     }
 }
 

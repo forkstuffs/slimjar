@@ -26,6 +26,7 @@ package io.github.slimjar.resolver.enquirer;
 
 import io.github.slimjar.resolver.ResolutionResult;
 import io.github.slimjar.resolver.data.Dependency;
+import io.github.slimjar.resolver.data.Repository;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -33,4 +34,5 @@ import java.net.URL;
 
 public interface RepositoryEnquirer {
     ResolutionResult enquire(final Dependency dependency);
+    Repository repository();
 }
