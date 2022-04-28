@@ -39,9 +39,14 @@ val predefinedDependencies = mutableMapOf<Dependency, List<String>>()
  */
 fun DependencyHandler.slim(
     dependencyNotation: String,
-    dependencyOptions: Action<ExternalModuleDependency>
+    dependencyOptions: Action<ExternalModuleDependency>,
+    predefinedRepositories: List<String> = listOf("maven"),
 ): ExternalModuleDependency? {
-    return withOptions(SLIM_CONFIGURATION_NAME, dependencyNotation, dependencyOptions)
+    val dependency = withOptions(SLIM_CONFIGURATION_NAME, dependencyNotation, dependencyOptions)
+    dependency?.let {
+        predefinedDependencies[it] = predefinedRepositories
+    }
+    return dependency
 }
 
 /**
