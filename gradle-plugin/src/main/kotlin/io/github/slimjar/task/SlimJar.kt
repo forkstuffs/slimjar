@@ -209,7 +209,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         val dependencies = RenderableModuleResult(config.incoming.resolutionResult.root)
             .children
             .mapNotNull { it.toSlimDependency() }
-            .toMutableList()
             .flatten()
 
         handleExcludes(dependencies)
