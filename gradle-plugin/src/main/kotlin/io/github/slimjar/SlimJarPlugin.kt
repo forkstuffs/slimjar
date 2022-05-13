@@ -32,7 +32,6 @@ import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.extra
 
 const val SLIM_CONFIGURATION_NAME = "slim"
-const val SLIM_API_CONFIGURATION_NAME = "slimApi"
 const val SLIM_JAR_TASK_NAME = "slimJar"
 private const val RESOURCES_TASK = "processResources"
 
@@ -49,13 +48,6 @@ class SlimJarPlugin : Plugin<Project> {
             JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME,
             JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME
         )
-        if (plugins.hasPlugin("java-library")) {
-            createConfig(
-                SLIM_API_CONFIGURATION_NAME,
-                JavaPlugin.COMPILE_ONLY_API_CONFIGURATION_NAME,
-                JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME
-            )
-        }
 
         val slimJar = tasks.create(SLIM_JAR_TASK_NAME, SlimJar::class.java, slimConfig)
         project.dependencies.extra.set(

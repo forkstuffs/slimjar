@@ -26,7 +26,6 @@ package io.github.slimjar.task
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import io.github.slimjar.SLIM_API_CONFIGURATION_NAME
 import io.github.slimjar.SlimJarPlugin
 import io.github.slimjar.func.performCompileTimeResolution
 import io.github.slimjar.func.predefinedDependencies
@@ -131,21 +130,14 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
             RenderableModuleResult(config.incoming.resolutionResult.root)
                 .children
                 .mapNotNull { it.toSlimDependency() }
-                .toMutableSet()
-        // If api config is present map dependencies from it as well
-        project.configurations.findByName(SLIM_API_CONFIGURATION_NAME)?.let { config->
-            dependencies.addAll(
-                RenderableModuleResult(config.incoming.resolutionResult.root)
-                    .children
-                    .mapNotNull { it.toSlimDependency() }
-            )
-        }
+                .toMutableList()
 
-        val repositories = repositories.filterIsInstance<MavenArtifactRepository>()
+        val repositories = repositories.asSequence()
+            .filterIsInstance<MavenArtifactRepository>()
             .filterNot { it.url.toString().startsWith("file") }
-            .toSet()
-            .map { Repository(it.url.toURL(), it.name) }
             .filterNot { excludedRepositories.any { repository -> it.url.toString().contains(repository) } }
+            .map { Repository(it.url.toURL(), it.name) }
+            .toList()
 
         // Note: Commented out to allow creation of empty dependency file
         // if (dependencies.isEmpty() || repositories.isEmpty()) return
@@ -165,7 +157,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         file.copyTo(File(shadowWriteFolder, file.name), true)
     }
 
-    private fun handleExcludes(dependencies: MutableSet<Dependency>) {
+    private fun handleExcludes(dependencies: MutableCollection<Dependency>) {
         val iterator = dependencies.iterator()
         while (iterator.hasNext()) {
             val dependency = iterator.next();
@@ -176,20 +168,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
             }
             handleExcludes(dependency.transitive)
         }
-    }
-
-    private fun handleExcludes(dependencies: MutableMap<String, ResolutionResult>): MutableMap<String, ResolutionResult> {
-        val result = HashMap<String, ResolutionResult>();
-        val iterator = dependencies.iterator()
-        while (iterator.hasNext()) {
-            val next = iterator.next();
-            val dependency = next.key
-            if (excludes.any { exclude -> dependency.contains(exclude) }) {
-                continue
-            }
-            result[next.key] = next.value
-        }
-        return result
     }
 
     // Finds jars to be isolated and adds them to final jar
@@ -215,8 +193,8 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
     internal fun generateResolvedDependenciesFile() = with(project) {
         if (project.performCompileTimeResolution.not()) return@with
 
-        fun Collection<Dependency>.flatten(): MutableSet<Dependency> {
-            return this.flatMap { it.transitive.flatten() + it }.toMutableSet()
+        fun Collection<Dependency>.flatten(): MutableCollection<Dependency> {
+            return this.flatMap { it.transitive.flatten() + it }.toMutableList()
         }
 
         val file = File(outputDirectory, "slimjar-resolutions.json")
@@ -227,17 +205,22 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         } else {
             mutableMapOf()
         }
+
         val dependencies = RenderableModuleResult(config.incoming.resolutionResult.root)
             .children
             .mapNotNull { it.toSlimDependency() }
-            .toMutableSet()
+            .toMutableList()
             .flatten()
 
-        val repositories = repositories.filterIsInstance<MavenArtifactRepository>()
+        handleExcludes(dependencies)
+        
+        val repositories = repositories
+            .asSequence()
+            .filterIsInstance<MavenArtifactRepository>()
             .filterNot { it.url.toString().startsWith("file") }
-            .toSet()
             .map { Repository(it.url.toURL(), it.name) }
             .filterNot { excludedRepositories.any { repository -> it.url.toString().contains(repository) } }
+            .toList()
 
         val releaseStrategy: PathResolutionStrategy = MavenPathResolutionStrategy()
         val snapshotStrategy: PathResolutionStrategy = MavenSnapshotPathResolutionStrategy()
@@ -264,7 +247,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
                 Dependency(dependency.group, dependency.name, dependency.version, null, null)
             }
         )
-        var result: MutableMap<String, ResolutionResult> = runBlocking(IO) {
+        val result: MutableMap<String, ResolutionResult> = runBlocking(IO) {
             dependencies
                 // Filter to enforce incremental resolution
                 .filter {
@@ -285,8 +268,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         }
 
         if (outputDirectory.exists().not()) outputDirectory.mkdirs()
-
-        result = handleExcludes(result)
 
         FileWriter(file).use {
             gson.toJson(result, it)
