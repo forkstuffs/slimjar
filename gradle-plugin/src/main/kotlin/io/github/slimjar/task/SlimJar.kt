@@ -213,7 +213,7 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
             .flatten()
 
         handleExcludes(dependencies)
-        
+
         val repositories = repositories
             .asSequence()
             .filterIsInstance<MavenArtifactRepository>()
