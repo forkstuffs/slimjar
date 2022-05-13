@@ -40,12 +40,7 @@ import io.github.slimjar.resolver.enquirer.PingingRepositoryEnquirerFactory
 import io.github.slimjar.resolver.mirrors.SimpleMirrorSelector
 import io.github.slimjar.resolver.pinger.HttpURLPinger
 import io.github.slimjar.resolver.pinger.URLPinger
-import io.github.slimjar.resolver.strategy.MavenChecksumPathResolutionStrategy
-import io.github.slimjar.resolver.strategy.MavenPathResolutionStrategy
-import io.github.slimjar.resolver.strategy.MavenPomPathResolutionStrategy
-import io.github.slimjar.resolver.strategy.MavenSnapshotPathResolutionStrategy
-import io.github.slimjar.resolver.strategy.MediatingPathResolutionStrategy
-import io.github.slimjar.resolver.strategy.PathResolutionStrategy
+import io.github.slimjar.resolver.strategy.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
@@ -55,7 +50,6 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.tasks.CacheableTask
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.diagnostics.internal.graph.nodes.RenderableDependency
@@ -155,19 +149,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         // Copies to shadow's main folder
         if (shadowWriteFolder.exists().not()) shadowWriteFolder.mkdirs()
         file.copyTo(File(shadowWriteFolder, file.name), true)
-    }
-
-    private fun handleExcludes(dependencies: MutableCollection<Dependency>) {
-        val iterator = dependencies.iterator()
-        while (iterator.hasNext()) {
-            val dependency = iterator.next();
-            val formatted = dependency.groupId + ":" + dependency.artifactId;
-            if (excludes.contains(formatted)) {
-                iterator.remove()
-                continue
-            }
-            handleExcludes(dependency.transitive)
-        }
     }
 
     // Finds jars to be isolated and adds them to final jar
@@ -310,5 +291,18 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
         val snapshot = values.getOrNull(3)
 
         return Dependency(group, artifact, version, snapshot, transitive)
+    }
+
+    private fun handleExcludes(dependencies: MutableIterable<Dependency>) {
+        val iterator = dependencies.iterator()
+        while (iterator.hasNext()) {
+            val dependency = iterator.next()
+            val formatted = dependency.groupId + ":" + dependency.artifactId
+            if (excludes.contains(formatted)) {
+                iterator.remove()
+                continue
+            }
+            handleExcludes(dependency.transitive)
+        }
     }
 }
