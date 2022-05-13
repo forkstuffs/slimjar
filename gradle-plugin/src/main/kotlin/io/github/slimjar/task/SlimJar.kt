@@ -57,7 +57,6 @@ import org.gradle.api.tasks.diagnostics.internal.graph.nodes.RenderableModuleRes
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
-import java.lang.reflect.Type
 import java.net.URL
 import javax.inject.Inject
 
@@ -73,6 +72,8 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
     private val gson = GsonBuilder().create()
     private val shadowWriteFolder = File("${project.buildDir}/resources/main/")
+
+    private val mapType = object : TypeToken<MutableMap<String, ResolutionResult>>() {}.type
 
     val outputDirectory: File = File("${project.buildDir}/resources/slimjar/")
         @OutputDirectory
@@ -180,7 +181,6 @@ abstract class SlimJar @Inject constructor(private val config: Configuration) : 
 
         val file = File(outputDirectory, "slimjar-resolutions.json")
 
-        val mapType: Type = object : TypeToken<MutableMap<String, ResolutionResult>>() {}.type
         val preResolved: MutableMap<String, ResolutionResult> = if (file.exists()) {
             gson.fromJson(FileReader(file), mapType)
         } else {
